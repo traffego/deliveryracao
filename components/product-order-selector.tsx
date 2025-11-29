@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { useCartStore } from "@/lib/store/cart-store";
+import { useRouter } from "next/navigation";
 
 type OrderMode = "quantity" | "value";
 
@@ -13,15 +15,23 @@ const PRESET_VALUES = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
 export default function ProductOrderSelector({
     product,
+    storeSlug,
 }: {
     product: {
+        id: string;
+        name: string;
+        slug: string;
         price: number;
         unit: string;
         order_mode: string;
         min_order_quantity?: number;
         min_order_value?: number;
     };
+    storeSlug: string;
 }) {
+    const router = useRouter();
+    const addItem = useCartStore((state) => state.addItem);
+
     const [mode, setMode] = useState<OrderMode>("value");
     const [quantity, setQuantity] = useState(product.min_order_quantity || 1);
     const [value, setValue] = useState(10);
@@ -31,6 +41,26 @@ export default function ProductOrderSelector({
 
     const calculatedValue = quantity * product.price;
     const calculatedQuantity = value / product.price;
+
+    const handleAddToCart = () => {
+        const finalQuantity = mode === "value" ? calculatedQuantity : quantity;
+        const finalValue = mode === "value" ? value : calculatedValue;
+
+        addItem({
+            id: `${product.id}-${mode}-${Date.now()}`,
+            productId: product.id,
+            productName: product.name,
+            productSlug: product.slug,
+            price: product.price,
+            unit: product.unit,
+            orderType: mode === "value" ? "by_value" : "by_quantity",
+            quantity: finalQuantity,
+            requestedValue: mode === "value" ? value : undefined,
+            subtotal: finalValue,
+        });
+
+        router.push(`/loja/${storeSlug}/carrinho`);
+    };
 
     return (
         <Card>
@@ -149,7 +179,8 @@ export default function ProductOrderSelector({
                     </div>
                 )}
 
-                <Button className="w-full mt-6" size="lg">
+                <Button onClick={handleAddToCart} className="w-full mt-6" size="lg">
+                    <ShoppingCart className="mr-2 h-5 w-5" />
                     Adicionar ao Carrinho
                 </Button>
             </CardContent>
