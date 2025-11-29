@@ -7,12 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
+import { useParams } from "next/navigation";
 
-export default function CartPage({
-    params,
-}: {
-    params: { slug: string };
-}) {
+export default function CartPage() {
+    const params = useParams();
+    const slug = params.slug as string;
     const { items, removeItem, getTotal, clearCart } = useCartStore();
 
     if (items.length === 0) {
@@ -25,7 +24,7 @@ export default function CartPage({
                         Adicione produtos ao seu carrinho para continuar
                     </p>
                     <Button asChild>
-                        <Link href={`/loja/${params.slug}/produtos`}>
+                        <Link href={`/loja/${slug}/produtos`}>
                             Ver Produtos
                         </Link>
                     </Button>
@@ -35,7 +34,7 @@ export default function CartPage({
     }
 
     const total = getTotal();
-    const deliveryFee = 10.00; // Taxa fixa
+    const deliveryFee = 10.00;
     const finalTotal = total + deliveryFee;
 
     return (
@@ -43,7 +42,6 @@ export default function CartPage({
             <h1 className="text-4xl font-bold mb-8">Seu Carrinho</h1>
 
             <div className="grid lg:grid-cols-3 gap-8">
-                {/* Itens do Carrinho */}
                 <div className="lg:col-span-2 space-y-4">
                     {items.map((item) => (
                         <Card key={item.id}>
@@ -100,7 +98,6 @@ export default function CartPage({
                     </Button>
                 </div>
 
-                {/* Resumo */}
                 <div className="lg:col-span-1">
                     <Card className="sticky top-8">
                         <CardHeader>
@@ -126,7 +123,7 @@ export default function CartPage({
                                 </div>
 
                                 <Button className="w-full" size="lg" asChild>
-                                    <Link href={`/loja/${params.slug}/checkout`}>
+                                    <Link href={`/loja/${slug}/checkout`}>
                                         Finalizar Pedido
                                         <ArrowRight className="ml-2 h-5 w-5" />
                                     </Link>
@@ -134,7 +131,7 @@ export default function CartPage({
                             </div>
 
                             <Button variant="outline" className="w-full" asChild>
-                                <Link href={`/loja/${params.slug}/produtos`}>
+                                <Link href={`/loja/${slug}/produtos`}>
                                     Continuar Comprando
                                 </Link>
                             </Button>
