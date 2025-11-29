@@ -97,7 +97,7 @@ export default async function ProductDetailPage({
                     )}
 
                     {/* Order Selector */}
-                    <ProductOrderSelector product={product} />
+                    <ProductOrderSelector product={product} storeSlug={slug} />
 
                     {/* Additional Info */}
                     <div className="grid grid-cols-3 gap-4 mt-8">
