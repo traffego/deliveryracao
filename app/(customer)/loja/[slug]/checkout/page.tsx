@@ -67,6 +67,29 @@ export default function CheckoutPage() {
                 }),
             });
 
+            const data = await response.json();
+            console.log("Order response:", data);
+
+            if (data.success) {
+                console.log("Order created successfully");
+                clearCart();
+
+                // Mostrar tela de confirmação
+                const orderData = {
+                    orderId: data.orderId,
+                    orderNumber: data.orderNumber,
+                    total: finalTotal,
+                    paymentMethod: paymentMethod
+                };
+                console.log("Setting confirmed order:", orderData);
+                setConfirmedOrder(orderData);
+                setOrderConfirmed(true);
+                console.log("Order confirmation state set");
+            } else {
+                alert("❌ Erro ao criar pedido: " + data.error);
+            }
+        } catch (error) {
+            console.error("Checkout error:", error);
             alert("❌ Erro ao processar pedido");
         } finally {
             setLoading(false);
