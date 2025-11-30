@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Check } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -23,20 +22,56 @@ export default function CheckoutPage() {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [street, setStreet] = useState("");
-    const [number, setNumber] = useState("");
+    const [deliveryNumber, setDeliveryNumber] = useState("");
     const [neighborhood, setNeighborhood] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
     const [cashAmount, setCashAmount] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const total = getTotal();
-    const deliveryFee = 10.00;
+    const deliveryFee = 10.0;
     const finalTotal = total + deliveryFee;
 
-    const handleFinishOrder = () => {
-        // Aqui você faria a chamada à API para criar o pedido no Supabase
-        alert("Pedido realizado com sucesso! (Simulação)");
-        clearCart();
-        router.push(`/loja/${slug}`);
+    const handleFinishOrder = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch("/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    storeId: "b9b9b99a-da04-471e-9e18-9af8ad79f2a1",
+                    customerName: name,
+                    customerPhone: phone,
+                    deliveryStreet: street,
+                    deliveryNumber,
+                    deliveryNeighborhood: neighborhood,
+                    deliveryCity: "São Paulo",
+                    deliveryState: "SP",
+                    deliveryZipCode: "01000-000",
+                    paymentMethod,
+                    cashChangeFor: paymentMethod === "money" ? parseFloat(cashAmount) : null,
+                    items,
+                    subtotal: total,
+                    deliveryFee,
+                    total: finalTotal,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`✅ Pedido #${data.orderId.slice(0, 8)} realizado com sucesso!`);
+                clearCart();
+                router.push(`/loja/${slug}`);
+            } else {
+                alert("❌ Erro ao criar pedido: " + data.error);
+            }
+        } catch (error) {
+            alert("❌ Erro ao processar pedido");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (items.length === 0) {
@@ -60,7 +95,6 @@ export default function CheckoutPage() {
 
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Dados Pessoais */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Seus Dados</CardTitle>
@@ -90,7 +124,6 @@ export default function CheckoutPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Endereço de Entrega */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Endereço de Entrega</CardTitle>
@@ -109,11 +142,11 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="number">Número *</Label>
+                                    <Label htmlFor="deliveryNumber">Número *</Label>
                                     <Input
-                                        id="number"
-                                        value={number}
-                                        onChange={(e) => setNumber(e.target.value)}
+                                        id="deliveryNumber"
+                                        value={deliveryNumber}
+                                        onChange={(e) => setDeliveryNumber(e.target.value)}
                                         placeholder="123"
                                         required
                                     />
@@ -133,7 +166,6 @@ export default function CheckoutPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Forma de Pagamento */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Forma de Pagamento</CardTitle>
@@ -198,7 +230,6 @@ export default function CheckoutPage() {
                     </Card>
                 </div>
 
-                {/* Resumo do Pedido */}
                 <div className="lg:col-span-1">
                     <Card className="sticky top-8">
                         <CardHeader>
@@ -253,11 +284,13 @@ export default function CheckoutPage() {
 
                             <Button
                                 onClick={handleFinishOrder}
-                                disabled={!name || !phone || !street || !number || !neighborhood}
+                                disabled={
+                                    !name || !phone || !street || !deliveryNumber || !neighborhood || loading
+                                }
                                 className="w-full"
                                 size="lg"
                             >
-                                Finalizar Pedido
+                                {loading ? "Processando..." : "Finalizar Pedido"}
                             </Button>
 
                             <p className="text-xs text-center text-gray-500">
