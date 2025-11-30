@@ -49,7 +49,7 @@ export default function CheckoutPage() {
                     deliveryState: "SP",
                     deliveryZipCode: "01000-000",
                     paymentMethod,
-                    cashChangeFor: paymentMethod === "money" ? parseFloat(cashAmount) : null,
+                    cashPaymentAmount: paymentMethod === "money" ? parseFloat(cashAmount) : null,
                     items,
                     subtotal: total,
                     deliveryFee,
