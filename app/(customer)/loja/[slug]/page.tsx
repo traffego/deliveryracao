@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ export default async function StorePage({
     params: Promise<{ slug: string }>;
 }) {
     const { slug } = await params;
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // Buscar loja
     const { data: store } = await supabase
