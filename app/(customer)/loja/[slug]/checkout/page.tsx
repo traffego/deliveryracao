@@ -61,20 +61,13 @@ export default function CheckoutPage() {
             console.log("Order response:", data);
 
             if (data.success) {
-                console.log("Order created successfully, redirecting...");
+                console.log("Order created successfully");
                 clearCart();
 
-                // Redirecionar para página de confirmação com dados
-                const queryParams = new URLSearchParams({
-                    orderId: data.orderId,
-                    orderNumber: data.orderNumber,
-                    paymentMethod,
-                    total: finalTotal.toString(),
-                });
+                // Temporário: mostrar alert até corrigir a página
+                alert(`✅ Pedido #${data.orderNumber} criado com sucesso!\n\nID: ${data.orderId}\nPagamento: ${paymentMethod}\nTotal: R$ ${finalTotal.toFixed(2)}\n\nRedirecionando para home...`);
 
-                const redirectUrl = `/loja/${slug}/pedido-confirmado?${queryParams.toString()}`;
-                console.log("Redirecting to:", redirectUrl);
-                router.push(redirectUrl);
+                router.push(`/loja/${slug}`);
             } else {
                 alert("❌ Erro ao criar pedido: " + data.error);
             }
