@@ -6,6 +6,7 @@ export type CartItem = {
     productId: string;
     productName: string;
     productSlug: string;
+    productType: string;
     price: number;
     unit: string;
     orderType: 'by_quantity' | 'by_value';

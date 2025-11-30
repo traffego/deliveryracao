@@ -21,6 +21,7 @@ export default function ProductOrderSelector({
         id: string;
         name: string;
         slug: string;
+        product_type: string;
         price: number;
         unit: string;
         order_mode: string;
@@ -51,6 +52,7 @@ export default function ProductOrderSelector({
             productId: product.id,
             productName: product.name,
             productSlug: product.slug,
+            productType: product.product_type,
             price: product.price,
             unit: product.unit,
             orderType: mode === "value" ? "by_value" : "by_quantity",

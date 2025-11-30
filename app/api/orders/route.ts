@@ -68,6 +68,7 @@ export async function POST(request: Request) {
             order_id: order.id,
             product_id: item.productId,
             product_name: item.productName,
+            product_type: item.productType || "bulk",
             quantity: item.quantity,
             unit_price: item.price,
             order_type: item.orderType === "by_value" ? "by_value" : "by_quantity",
