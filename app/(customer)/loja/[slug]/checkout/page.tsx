@@ -58,8 +58,10 @@ export default function CheckoutPage() {
             });
 
             const data = await response.json();
+            console.log("Order response:", data);
 
             if (data.success) {
+                console.log("Order created successfully, redirecting...");
                 clearCart();
 
                 // Redirecionar para página de confirmação com dados
@@ -70,13 +72,15 @@ export default function CheckoutPage() {
                     total: finalTotal.toString(),
                 });
 
-                router.push(`/loja/${slug}/pedido-confirmado?${queryParams.toString()}`);
+                const redirectUrl = `/loja/${slug}/pedido-confirmado?${queryParams.toString()}`;
+                console.log("Redirecting to:", redirectUrl);
+                router.push(redirectUrl);
             } else {
                 alert("❌ Erro ao criar pedido: " + data.error);
             }
         } catch (error) {
+            console.error("Checkout error:", error);
             alert("❌ Erro ao processar pedido");
-            console.error(error);
         } finally {
             setLoading(false);
         }
