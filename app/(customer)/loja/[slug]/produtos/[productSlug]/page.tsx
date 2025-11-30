@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +13,7 @@ export default async function ProductDetailPage({
     params: Promise<{ slug: string; productSlug: string }>;
 }) {
     const { slug, productSlug } = await params;
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const { data: store } = await supabase
         .from("stores")
