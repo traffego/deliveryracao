@@ -67,26 +67,6 @@ export default function CheckoutPage() {
                 }),
             });
 
-            const data = await response.json();
-            console.log("Order response:", data);
-
-            if (data.success) {
-                console.log("Order created successfully");
-                clearCart();
-
-                // Mostrar tela de confirmação
-                setConfirmedOrder({
-                    orderId: data.orderId,
-                    orderNumber: data.orderNumber,
-                    total: finalTotal,
-                    paymentMethod: paymentMethod
-                });
-                setOrderConfirmed(true);
-            } else {
-                alert("❌ Erro ao criar pedido: " + data.error);
-            }
-        } catch (error) {
-            console.error("Checkout error:", error);
             alert("❌ Erro ao processar pedido");
         } finally {
             setLoading(false);
@@ -102,6 +82,7 @@ export default function CheckoutPage() {
 
     // Mostrar tela de confirmação se pedido foi confirmado
     if (orderConfirmed && confirmedOrder) {
+        console.log("Rendering order confirmation with:", confirmedOrder);
         return (
             <OrderConfirmation
                 orderId={confirmedOrder.orderId}
