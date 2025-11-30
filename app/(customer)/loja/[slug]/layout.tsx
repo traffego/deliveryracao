@@ -61,6 +61,12 @@ export default async function StoreLayout({
                                 Produtos
                             </a>
                             <a
+                                href={`/loja/${slug}/meus-pedidos`}
+                                className="text-gray-700 hover:text-emerald-600 font-medium"
+                            >
+                                📦 Meus Pedidos
+                            </a>
+                            <a
                                 href={`/loja/${slug}/carrinho`}
                                 className="text-gray-700 hover:text-emerald-600 font-medium"
                             >
