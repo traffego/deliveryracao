@@ -10,6 +10,7 @@ import { ArrowLeft, Check } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
+import OrderConfirmation from "./order-confirmation";
 
 type PaymentMethod = "pix" | "money" | "card" | "mercadopago";
 
@@ -27,6 +28,15 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
     const [cashAmount, setCashAmount] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // Estado para confirmação de pedido
+    const [orderConfirmed, setOrderConfirmed] = useState(false);
+    const [confirmedOrder, setConfirmedOrder] = useState<{
+        orderId: string;
+        orderNumber: string;
+        total: number;
+        paymentMethod: string;
+    } | null>(null);
 
     const total = getTotal();
     const deliveryFee = 10.0;
@@ -64,11 +74,14 @@ export default function CheckoutPage() {
                 console.log("Order created successfully");
                 clearCart();
 
-                // Temporário: mostrar alert até corrigir a página
-                alert(`✅ Pedido #${data.orderNumber} criado com sucesso!\n\nID: ${data.orderId}\nPagamento: ${paymentMethod}\nTotal: R$ ${finalTotal.toFixed(2)}\n\nRedirecionando para home...`);
-
-                // Usar window.location.href para garantir o redirect
-                window.location.href = `/loja/${slug}`;
+                // Mostrar tela de confirmação
+                setConfirmedOrder({
+                    orderId: data.orderId,
+                    orderNumber: data.orderNumber,
+                    total: finalTotal,
+                    paymentMethod: paymentMethod
+                });
+                setOrderConfirmed(true);
             } else {
                 alert("❌ Erro ao criar pedido: " + data.error);
             }
@@ -86,6 +99,19 @@ export default function CheckoutPage() {
     }
 
     const cashChange = cashAmount ? parseFloat(cashAmount) - finalTotal : 0;
+
+    // Mostrar tela de confirmação se pedido foi confirmado
+    if (orderConfirmed && confirmedOrder) {
+        return (
+            <OrderConfirmation
+                orderId={confirmedOrder.orderId}
+                orderNumber={confirmedOrder.orderNumber}
+                total={confirmedOrder.total}
+                paymentMethod={confirmedOrder.paymentMethod}
+                storeSlug={slug}
+            />
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
