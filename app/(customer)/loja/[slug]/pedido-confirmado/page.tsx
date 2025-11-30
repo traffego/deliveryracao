@@ -17,6 +17,8 @@ export default function OrderConfirmationPage() {
     const paymentMethod = searchParams.get("paymentMethod");
     const total = searchParams.get("total");
 
+    console.log("Order confirmation page loaded", { orderId, orderNumber, paymentMethod, total });
+
     const [pixCode, setPixCode] = useState("");
     const [loading, setLoading] = useState(true);
 
@@ -33,6 +35,7 @@ export default function OrderConfirmationPage() {
     }, [paymentMethod]);
 
     if (!orderId) {
+        console.log("No orderId found, showing error page");
         return (
             <div className="container mx-auto px-4 py-16 text-center">
                 <p>Pedido não encontrado</p>
