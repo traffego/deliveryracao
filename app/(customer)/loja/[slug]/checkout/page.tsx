@@ -57,6 +57,23 @@ export default function CheckoutPage() {
                 }),
             });
 
+            const data = await response.json();
+            console.log("Order response:", data);
+
+            if (data.success) {
+                console.log("Order created successfully");
+                clearCart();
+
+                // Temporário: mostrar alert até corrigir a página
+                alert(`✅ Pedido #${data.orderNumber} criado com sucesso!\n\nID: ${data.orderId}\nPagamento: ${paymentMethod}\nTotal: R$ ${finalTotal.toFixed(2)}\n\nRedirecionando para home...`);
+
+                // Usar window.location.href para garantir o redirect
+                window.location.href = `/loja/${slug}`;
+            } else {
+                alert("❌ Erro ao criar pedido: " + data.error);
+            }
+        } catch (error) {
+            console.error("Checkout error:", error);
             alert("❌ Erro ao processar pedido");
         } finally {
             setLoading(false);
