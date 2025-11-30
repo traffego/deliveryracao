@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export default async function StoreLayout({
     children,
@@ -9,9 +9,9 @@ export default async function StoreLayout({
     params: Promise<{ slug: string }>;
 }) {
     const { slug } = await params;
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
-    // Buscar dados da loja
+    // Buscar dados da loja (usando admin client para bypass RLS)
     const { data: store, error } = await supabase
         .from("stores")
         .select("*")
