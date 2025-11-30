@@ -1,4 +1,4 @@
-import { createClient } from "./client";
+import { createClient } from "@/lib/supabase/client";
 
 // Gerar senha aleatória segura para clientes
 export function generateRandomPassword(): string {
