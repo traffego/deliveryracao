@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, ShoppingCart, Package2 } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Package2, Zap } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useRouter } from "next/navigation";
+import CartModal from "@/components/cart-modal";
 
 type OrderMode = "quantity" | "value" | "bag";
 
@@ -56,6 +57,7 @@ export default function ProductOrderSelector({
         hasBagOptions && product.bag_options ? product.bag_options[0] : null
     );
     const [bagQuantity, setBagQuantity] = useState(1);
+    const [showCartModal, setShowCartModal] = useState(false);
 
     const canOrderByValue = product.order_mode === "both" || product.order_mode === "value";
     const canOrderByQuantity = product.order_mode === "both" || product.order_mode === "quantity";
@@ -63,7 +65,7 @@ export default function ProductOrderSelector({
     const calculatedValue = quantity * product.price;
     const calculatedQuantity = value / product.price;
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (buyNow: boolean = false) => {
         if (mode === "bag" && selectedBag) {
             // Adicionar saco fechado
             addItem({
@@ -100,7 +102,11 @@ export default function ProductOrderSelector({
             });
         }
 
-        router.push(`/loja/${storeSlug}/carrinho`);
+        if (buyNow) {
+            router.push(`/loja/${storeSlug}/checkout`);
+        } else {
+            setShowCartModal(true);
+        }
     };
 
     const showModeSelector = (canOrderByValue || canOrderByQuantity) && hasBagOptions;
@@ -364,16 +370,35 @@ export default function ProductOrderSelector({
                     </div>
                 )}
 
-                <Button
-                    onClick={handleAddToCart}
-                    className="w-full mt-6"
-                    size="lg"
-                    disabled={mode === "bag" && (!selectedBag || selectedBag.stock === 0)}
-                >
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Adicionar ao Carrinho
-                </Button>
+                <div className="flex gap-2 mt-6">
+                    <Button
+                        onClick={() => handleAddToCart(false)}
+                        variant="outline"
+                        size="lg"
+                        className="flex-1"
+                        disabled={mode === "bag" && (!selectedBag || selectedBag.stock === 0)}
+                    >
+                        <ShoppingCart className="mr-2 h-5 w-5" />
+                        Adicionar
+                    </Button>
+
+                    <Button
+                        onClick={() => handleAddToCart(true)}
+                        size="lg"
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                        disabled={mode === "bag" && (!selectedBag || selectedBag.stock === 0)}
+                    >
+                        <Zap className="mr-2 h-5 w-5" />
+                        Comprar Agora
+                    </Button>
+                </div>
             </CardContent>
         </Card>
+
+        <CartModal
+            isOpen={showCartModal}
+            onClose={() => setShowCartModal(false)}
+            storeSlug={storeSlug}
+        />
     );
 }
