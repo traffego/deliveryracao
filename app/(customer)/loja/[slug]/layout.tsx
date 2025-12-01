@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/server";
 import CartBadge from "@/components/cart-badge";
+import UserMenu from "@/components/user-menu";
 
 export default async function StoreLayout({
     children,
@@ -68,6 +69,7 @@ export default async function StoreLayout({
                                 📦 Meus Pedidos
                             </a>
                             <CartBadge storeSlug={slug} />
+                            <UserMenu storeSlug={slug} />
                         </nav>
                     </div>
                 </div>
