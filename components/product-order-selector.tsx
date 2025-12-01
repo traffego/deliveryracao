@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,8 @@ import { Minus, Plus, ShoppingCart, Package2, Zap } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useRouter } from "next/navigation";
 import CartModal from "@/components/cart-modal";
+import QuickAuthModal from "@/components/auth/quick-auth-modal";
+import { getCurrentUser } from "@/lib/auth/auth-helpers";
 
 type OrderMode = "quantity" | "value" | "bag";
 
@@ -59,6 +61,49 @@ export default function ProductOrderSelector({
     const [bagQuantity, setBagQuantity] = useState(1);
     const [showCartModal, setShowCartModal] = useState(false);
 
+    // Estados de autenticação
+    const [user, setUser] = useState<any>(null);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [pendingAction, setPendingAction] = useState<{ buyNow: boolean } | null>(null);
+    const [customerName, setCustomerName] = useState("");
+    const [customerPhone, setCustomerPhone] = useState("");
+
+    // Verificar autenticação ao carregar
+    useEffect(() => {
+        async function checkAuth() {
+            const currentUser = await getCurrentUser();
+            if (currentUser) {
+                setUser(currentUser);
+                if (currentUser.profile) {
+                    setCustomerName(currentUser.profile.full_name || "");
+                    setCustomerPhone(currentUser.profile.phone || "");
+                }
+            }
+            setAuthLoading(false);
+        }
+        checkAuth();
+    }, []);
+
+    // Callback após autenticação bem-sucedida
+    const handleAuthSuccess = async (userId: string) => {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+            setUser(currentUser);
+            if (currentUser.profile) {
+                setCustomerName(currentUser.profile.full_name || "");
+                setCustomerPhone(currentUser.profile.phone || "");
+            }
+        }
+        setShowAuthModal(false);
+
+        // Executar ação pendente após autenticação
+        if (pendingAction) {
+            executeAddToCart(pendingAction.buyNow);
+            setPendingAction(null);
+        }
+    };
+
     const canOrderByValue = product.order_mode === "both" || product.order_mode === "value";
     const canOrderByQuantity = product.order_mode === "both" || product.order_mode === "quantity";
 
@@ -66,6 +111,17 @@ export default function ProductOrderSelector({
     const calculatedQuantity = value / product.price;
 
     const handleAddToCart = (buyNow: boolean = false) => {
+        // Verificar autenticação primeiro
+        if (!user) {
+            setPendingAction({ buyNow });
+            setShowAuthModal(true);
+            return;
+        }
+
+        executeAddToCart(buyNow);
+    };
+
+    const executeAddToCart = (buyNow: boolean) => {
         if (mode === "bag" && selectedBag) {
             // Adicionar saco fechado
             addItem({
@@ -401,6 +457,20 @@ export default function ProductOrderSelector({
                 onClose={() => setShowCartModal(false)}
                 storeSlug={storeSlug}
             />
+
+            {/* Modal de Autenticação */}
+            {showAuthModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="w-full max-w-md">
+                        <QuickAuthModal
+                            phone={customerPhone}
+                            name={customerName}
+                            onSuccess={handleAuthSuccess}
+                            onSkip={() => setShowAuthModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
 }
