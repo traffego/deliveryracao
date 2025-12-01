@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/lib/store/cart-store";
+import { getCurrentUser } from "@/lib/auth/auth-helpers";
+import QuickAuthModal from "@/components/auth/quick-auth-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
@@ -19,6 +21,11 @@ export default function CheckoutPage() {
     const router = useRouter();
     const slug = params.slug as string;
     const { items, getTotal, clearCart } = useCartStore();
+
+    // Estados de autenticação
+    const [user, setUser] = useState<any>(null);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
@@ -41,6 +48,39 @@ export default function CheckoutPage() {
     const total = getTotal();
     const deliveryFee = 10.0;
     const finalTotal = total + deliveryFee;
+
+    // Verificar autenticação ao carregar
+    useEffect(() => {
+        async function checkAuth() {
+            const currentUser = await getCurrentUser();
+            if (currentUser) {
+                setUser(currentUser);
+                // Preencher dados do perfil se tiver
+                if (currentUser.profile) {
+                    setName(currentUser.profile.full_name || "");
+                    setPhone(currentUser.profile.phone || "");
+                }
+            } else {
+                // Mostrar modal de autenticação
+                setShowAuthModal(true);
+            }
+            setAuthLoading(false);
+        }
+        checkAuth();
+    }, []);
+
+    // Callback de sucesso de autenticação
+    const handleAuthSuccess = async () => {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+            setUser(currentUser);
+            if (currentUser.profile) {
+                setName(currentUser.profile.full_name || "");
+                setPhone(currentUser.profile.phone || "");
+            }
+        }
+        setShowAuthModal(false);
+    };
 
     const handleFinishOrder = async () => {
         setLoading(true);
@@ -336,6 +376,14 @@ export default function CheckoutPage() {
                     </Card>
                 </div>
             </div>
+
+            {/* Modal de Autenticação */}
+            <QuickAuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                onSuccess={handleAuthSuccess}
+                mode="signup"
+            />
         </div>
     );
 }
