@@ -44,7 +44,9 @@ export default function ProductOrderSelector({
     const addItem = useCartStore((state) => state.addItem);
 
     const hasBagOptions = product.bag_options && product.bag_options.length > 0;
-    const defaultMode: OrderMode = hasBagOptions ? "bag" : "value";
+
+    // Sempre começar com "Por Valor" como padrão
+    const defaultMode: OrderMode = "value";
 
     const [mode, setMode] = useState<OrderMode>(defaultMode);
     const [quantity, setQuantity] = useState(product.min_order_quantity || 1);
