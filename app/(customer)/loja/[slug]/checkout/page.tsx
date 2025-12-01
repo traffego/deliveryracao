@@ -70,7 +70,7 @@ export default function CheckoutPage() {
     }, []);
 
     // Callback de sucesso de autenticação
-    const handleAuthSuccess = async () => {
+    const handleAuthSuccess = async (userId: string) => {
         const currentUser = await getCurrentUser();
         if (currentUser) {
             setUser(currentUser);
@@ -377,13 +377,19 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            {/* Modal de Autenticação */}
-            <QuickAuthModal
-                isOpen={showAuthModal}
-                onClose={() => setShowAuthModal(false)}
-                onSuccess={handleAuthSuccess}
-                mode="signup"
-            />
+            {/* Modal de Autenticação - mostrar apenas se não autenticado */}
+            {showAuthModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="w-full max-w-md">
+                        <QuickAuthModal
+                            phone={phone}
+                            name={name}
+                            onSuccess={handleAuthSuccess}
+                            onSkip={() => setShowAuthModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
