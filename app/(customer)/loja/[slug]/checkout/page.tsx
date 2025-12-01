@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, User, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, User, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
@@ -20,7 +20,7 @@ export default function CheckoutPage() {
     const params = useParams();
     const router = useRouter();
     const slug = params.slug as string;
-    const { items, getTotal, clearCart } = useCartStore();
+    const { items, getTotal, clearCart, removeItem } = useCartStore();
 
     // Estados de autenticação
     const [user, setUser] = useState<any>(null);
@@ -314,14 +314,24 @@ export default function CheckoutPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-3 max-h-64 overflow-y-auto">
                                 {items.map((item) => (
-                                    <div key={item.id} className="flex justify-between text-sm">
+                                    <div key={item.id} className="flex justify-between items-start gap-2 text-sm">
                                         <div className="flex-1">
                                             <p className="font-medium">{item.productName}</p>
                                             <p className="text-gray-600 text-xs">
                                                 {item.quantity.toFixed(2)} {item.unit}
                                             </p>
                                         </div>
-                                        <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => removeItem(item.id)}
+                                                className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

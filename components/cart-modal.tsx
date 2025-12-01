@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart, X, ArrowRight } from "lucide-react";
+import { ShoppingCart, X, ArrowRight, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart-store";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
@@ -17,6 +17,7 @@ export default function CartModal({
 }) {
     const items = useCartStore((state) => state.items);
     const total = useCartStore((state) => state.getTotal());
+    const removeItem = useCartStore((state) => state.removeItem);
 
     if (!isOpen) return null;
 
@@ -69,9 +70,18 @@ export default function CartModal({
                                 {items.map((item) => (
                                     <div
                                         key={item.id}
-                                        className="bg-gray-50 rounded-lg p-4"
+                                        className="bg-gray-50 rounded-lg p-4 relative"
                                     >
-                                        <h3 className="font-semibold mb-1">{item.productName}</h3>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => removeItem(item.id)}
+                                            className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+
+                                        <h3 className="font-semibold mb-1 pr-8">{item.productName}</h3>
                                         <div className="flex justify-between items-center text-sm text-gray-600">
                                             <span>
                                                 {item.quantity.toFixed(2)} {item.unit}
