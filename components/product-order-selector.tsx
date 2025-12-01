@@ -50,7 +50,7 @@ export default function ProductOrderSelector({
     const [quantity, setQuantity] = useState(product.min_order_quantity || 1);
     const [value, setValue] = useState(10);
     const [selectedBag, setSelectedBag] = useState<BagOption | null>(
-        hasBagOptions ? product.bag_options[0] : null
+        hasBagOptions && product.bag_options ? product.bag_options[0] : null
     );
     const [bagQuantity, setBagQuantity] = useState(1);
 
