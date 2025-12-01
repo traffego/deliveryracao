@@ -9,9 +9,11 @@ export type CartItem = {
     productType: string;
     price: number;
     unit: string;
-    orderType: 'by_quantity' | 'by_value';
+    orderType: 'by_quantity' | 'by_value' | 'by_bag';
     quantity: number;
     requestedValue?: number;
+    bagSize?: string;
+    bagWeight?: number;
     subtotal: number;
 };
 
